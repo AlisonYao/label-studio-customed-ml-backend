@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  seg-backend:
+    container_name: seg-backend
+    image: humansignal/seg-backend:v0
+    build: .
+    environment:
+      - MODEL_DIR=/data/models
+      - WORKERS=2
+      - THREADS=4
+      - LOG_LEVEL=DEBUG
+      - ANY=PARAMETER
+      - LABEL_STUDIO_HOST=http://host.docker.internal:8080
+      - LABEL_STUDIO_ACCESS_TOKEN=
+    ports:
+      - "7070:7070"
+    volumes:
+      - "./data/server:/data"
