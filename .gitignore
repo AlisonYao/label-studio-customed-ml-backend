@@ -130,3 +130,6 @@ dmypy.json
 
 # actions-hub
 .github/actions-hub
+
+# uploaded images
+label_studio_ml/examples/segment_anything_model/mydata/media/upload
