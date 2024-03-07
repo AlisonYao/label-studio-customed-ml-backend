@@ -5,12 +5,41 @@ from typing import List, Dict, Optional
 from uuid import uuid4
 from sam_predictor import SAMPredictor
 from label_studio_ml.model import LabelStudioMLBase
+from label_studio_ml.utils import DATA_UNDEFINED_NAME
+from google.cloud import storage
+from datetime import timedelta
+import logging
+logger = logging.getLogger(__name__)
 
 SAM_CHOICE = os.environ.get("SAM_CHOICE", "MobileSAM")  # other option is just SAM
 PREDICTOR = SAMPredictor(SAM_CHOICE)
 
 
 class SamMLBackend(LabelStudioMLBase):
+    
+    def _get_image_url(self, task, value):
+        image_url = task['data'].get(value) or task['data'].get(DATA_UNDEFINED_NAME)
+        print(f'%%%%%%%%% image_url: {image_url}')
+
+        if image_url.startswith('gs://'):
+            # Generate signed URL for GCS
+            bucket_name, object_name = image_url.replace('gs://', '').split('/', 1)
+            print(f"bucket_name: {bucket_name}")
+            print(f"object_name: {object_name}")
+            storage_client = storage.Client.from_service_account_json('/secrets/service_account_key.json')
+            print("FREAKING service account key works!!!!!!!!!!!!!!")
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(object_name)
+            try:
+                image_url = blob.generate_signed_url(
+                    version="v4",
+                    expiration=timedelta(hours=1),  # Adjust expiration time as needed
+                    method="GET",
+                )
+                print(f'%%%%%%%%% image_url: {image_url}')
+            except Exception as exc:
+                logger.warning(f'Can\'t generate signed URL for {image_url}. Reason: {exc}')
+        return image_url
 
     def predict(self, tasks: List[Dict], context: Optional[Dict] = None, **kwargs) -> List[Dict]:
         """ Returns the predicted mask for a smart keypoint that has been placed."""
@@ -44,7 +73,16 @@ class SamMLBackend(LabelStudioMLBase):
 
         print(f'Point coords are {point_coords}, point labels are {point_labels}, input box is {input_box}')
 
+        print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+        print(f"value: {value}")
         img_path = tasks[0]['data'][value]
+        print(f"img_path1: {img_path}") # gs://ferre-runway/11092.jpg
+        task = tasks[0]
+        img_path = self._get_image_url(task, value)
+        print(f"img_path2: {img_path}")
+        print(f'task: {task}')
+        print(f"context: {context}")
+        print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
         predictor_results = PREDICTOR.predict(
             img_path=img_path,
             point_coords=point_coords or None,
