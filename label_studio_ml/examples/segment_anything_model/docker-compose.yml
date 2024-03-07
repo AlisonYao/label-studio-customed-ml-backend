@@ -29,3 +29,4 @@ services:
       - 9090:9090
     volumes:
       - "./data/server:/data"
+      - /Full/Local/Path/service_account_key.json:/secrets/service_account_key.json
