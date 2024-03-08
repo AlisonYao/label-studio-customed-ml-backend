@@ -20,4 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . ./
 
+ENV GOOGLE_APPLICATION_CREDENTIALS=../secrets/service_account_key.json
+
 CMD exec gunicorn --preload --bind :$PORT --workers $WORKERS --threads $THREADS --timeout 0 _wsgi:app
