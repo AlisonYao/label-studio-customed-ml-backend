@@ -7,6 +7,11 @@ import cv2
 import numpy as np
 import random
 import string
+from label_studio_ml.utils import DATA_UNDEFINED_NAME
+from google.cloud import storage
+from datetime import timedelta
+import logging
+logger = logging.getLogger(__name__)
 
 from transformers import SegformerImageProcessor, AutoModelForSemanticSegmentation
 from PIL import Image
@@ -19,6 +24,24 @@ LABEL_STUDIO_ACCESS_TOKEN = os.environ.get("LABEL_STUDIO_ACCESS_TOKEN")
 LABEL_STUDIO_HOST = os.environ.get("LABEL_STUDIO_HOST")
 
 class SegModel(LabelStudioMLBase):
+    
+    def _get_image_url(self, task, value='image'):
+        image_url = task['data'].get(value) or task['data'].get(DATA_UNDEFINED_NAME)
+        if image_url.startswith('gs://'):
+            # Generate signed URL for GCS
+            bucket_name, object_name = image_url.replace('gs://', '').split('/', 1)
+            storage_client = storage.Client.from_service_account_json('/secrets/service_account_key.json')
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(object_name)
+            try:
+                image_url = blob.generate_signed_url(
+                    version="v4",
+                    expiration=timedelta(hours=1),  # Adjust expiration time as needed
+                    method="GET",
+                )
+            except Exception as exc:
+                logger.warning(f'Can\'t generate signed URL for {image_url}. Reason: {exc}')
+        return image_url
         
     def predict(self, tasks: List[Dict], context: Optional[Dict] = None, **kwargs) -> List[Dict]:
         """ Write your inference logic here
@@ -43,19 +66,24 @@ class SegModel(LabelStudioMLBase):
         # Load image
         ################################################################
         img_path = task['data']['image']
-        image_path = get_image_local_path(
-            img_path,
-            label_studio_access_token=LABEL_STUDIO_ACCESS_TOKEN,
-            label_studio_host=LABEL_STUDIO_HOST
-        )
-        cv_image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
-        image_height, image_width = cv_image.shape[:2]
+        if img_path.startswith('gs://'):
+            image_path = self._get_image_url(task)
+        else:
+            image_path = get_image_local_path(
+                img_path,
+                label_studio_access_token=LABEL_STUDIO_ACCESS_TOKEN,
+                label_studio_host=LABEL_STUDIO_HOST
+            )
+        if image_path.startswith('https://') or image_path.startswith('http://'):
+            image = Image.open(requests.get(image_path, stream=True).raw)
+        else:
+            image = Image.open(image_path)
+        image_width, image_height = image.size
         
         ################################################################
         # Running segmentation model
         # https://huggingface.co/mattmdjaga/segformer_b2_clothes
         ################################################################
-        image = Image.open(image_path)
         processor = SegformerImageProcessor.from_pretrained("mattmdjaga/segformer_b2_clothes")
         model = AutoModelForSemanticSegmentation.from_pretrained("mattmdjaga/segformer_b2_clothes")
         inputs = processor(images=image, return_tensors="pt")
