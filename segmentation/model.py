@@ -78,6 +78,8 @@ class SegModel(LabelStudioMLBase):
             image = Image.open(requests.get(image_path, stream=True).raw)
         else:
             image = Image.open(image_path)
+        if image.mode != "RGB":
+            image = image.convert('RGB')
         image_width, image_height = image.size
         
         ################################################################
