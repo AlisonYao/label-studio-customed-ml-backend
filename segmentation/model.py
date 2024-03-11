@@ -104,7 +104,24 @@ class SegModel(LabelStudioMLBase):
         ################################################################
         prediction_results = []
         # original label dict from the model
-        # labels = {0: "Background", 1: "Hat", 2: "Hair", 3: "Sunglasses", 4: "Upper-clothes", 5: "Skirt", 6: "Pants", 7: "Dress", 8: "Belt", 9: "Left-shoe", 10: "Right-shoe", 11: "Face", 12: "Left-leg", 13: "Right-leg", 14: "Left-arm", 15: "Right-arm", 16: "Bag", 17: "Scarf"}
+        # labels = {0: "Background", 
+                #   1: "Hat", 
+                #   2: "Hair", 
+                #   3: "Sunglasses", 
+                #   4: "Upper-clothes", 
+                #   5: "Skirt", 
+                #   6: "Pants", 
+                #   7: "Dress", 
+                #   8: "Belt", 
+                #   9: "Left-shoe", 
+                #   10: "Right-shoe", 
+                #   11: "Face", 
+                #   12: "Left-leg", 
+                #   13: "Right-leg", 
+                #   14: "Left-arm", 
+                #   15: "Right-arm", 
+                #   16: "Bag", 
+                #   17: "Scarf"}
         # modified label dictionary
         labels_dict = {1: "accessory", 
                        3: "accessory", 
@@ -113,23 +130,24 @@ class SegModel(LabelStudioMLBase):
                        6: "pants", 
                        7: "dress", 
                        8: "accessory", 
-                       9: "footwear", 
-                       10: "footwear", 
+                       9: "accessory", 
+                       10: "accessory", 
                        16: "accessory", 
                        17: "accessory"}
         unique_labels = np.unique(pred_seg.numpy())
-        # merge left and right shoe
-        if 10 in unique_labels:
-            pred_seg[pred_seg == 10] = 9
         # merge all accessories
+        if 9 in unique_labels:
+            pred_seg[pred_seg == 9] = 1
+        elif 10 in unique_labels:
+            pred_seg[pred_seg == 10] = 1
         elif 3 in unique_labels:
-            pred_seg[pred_seg == 10] = 1
+            pred_seg[pred_seg == 3] = 1
         elif 8 in unique_labels:
-            pred_seg[pred_seg == 10] = 1
+            pred_seg[pred_seg == 8] = 1
         elif 16 in unique_labels:
-            pred_seg[pred_seg == 10] = 1
+            pred_seg[pred_seg == 16] = 1
         elif 17 in unique_labels:
-            pred_seg[pred_seg == 10] = 1
+            pred_seg[pred_seg == 17] = 1
         unique_labels = np.unique(pred_seg.numpy())
         
         # divide masks
