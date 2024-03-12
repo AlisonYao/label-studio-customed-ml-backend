@@ -135,19 +135,10 @@ class SegModel(LabelStudioMLBase):
                        16: "accessory", 
                        17: "accessory"}
         unique_labels = np.unique(pred_seg.numpy())
-        # merge all accessories
-        if 9 in unique_labels:
-            pred_seg[pred_seg == 9] = 1
-        elif 10 in unique_labels:
-            pred_seg[pred_seg == 10] = 1
-        elif 3 in unique_labels:
-            pred_seg[pred_seg == 3] = 1
-        elif 8 in unique_labels:
-            pred_seg[pred_seg == 8] = 1
-        elif 16 in unique_labels:
-            pred_seg[pred_seg == 16] = 1
-        elif 17 in unique_labels:
-            pred_seg[pred_seg == 17] = 1
+        # merge all accessories to 1
+        for n in [3, 8, 9, 10, 16, 17]:
+            if n in unique_labels:
+                pred_seg[pred_seg == n] = 1
         unique_labels = np.unique(pred_seg.numpy())
         
         # divide masks
