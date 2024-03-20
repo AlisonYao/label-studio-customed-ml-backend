@@ -130,11 +130,13 @@ class SegModel(LabelStudioMLBase):
                        6: "pants", 
                        7: "dress", 
                        8: "accessory", 
-                       9: "accessory", 
-                       10: "accessory", 
+                       9: "footwear", 
+                       10: "footwear", 
                        16: "accessory", 
                        17: "accessory"}
         unique_labels = np.unique(pred_seg.numpy())
+        if 10 in unique_labels:
+            pred_seg[pred_seg == 10] = 9
         # merge all accessories to 1
         # for n in [3, 8, 9, 10, 16, 17]:
         #     if n in unique_labels:

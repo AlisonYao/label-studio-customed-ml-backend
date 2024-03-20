@@ -1,0 +1,59 @@
+<View>
+    <Image name="image" value="$image" zoom="true" zoomControl="true" rotateControl="false"/>
+
+    <Header value="Brush Labels"/>
+    <BrushLabels name="tag" toName="image">
+        <Label value="jacket" background="#34a00d"/>
+        <Label value="coat" background="#D4380D"/>
+        <Label value="shirt" background="#FFC069"/>
+        <Label value="blouse" background="#AD8B00"/>
+        <Label value="other tops" background="#D3F261"/>
+        <Label value="jersey shirt" background="#389E0D"/>
+        <Label value="dress" background="#5CDBD3"/>
+        <Label value="jumpsuit" background="#096DD9"/>
+        <Label value="skirt" background="#ADC6FF"/>
+        <Label value="pants" background="#9254DE"/>
+        <Label value="knitwear" background="#F759AB"/>
+        <Label value="tailleur" background="#FFA39E"/>
+        <Label value="swimsuit" background="#D4380D"/>
+        <Label value="accessory" background="#FFC069"/>
+    </BrushLabels>
+    
+    <Header value="Keypoint Labels"/>
+    <KeyPointLabels name="tag2" toName="image" smart="true">
+        <Label value="jacket" background="#AD8B00"/>
+        <Label value="coat" background="#D3F261"/>
+        <Label value="shirt" background="#389E0D"/>
+        <Label value="blouse" background="#5CDBD3"/>
+        <Label value="other tops" background="#096DD9"/>
+        <Label value="jersey shirt" background="#ADC6FF"/>
+        <Label value="dress" background="#9254DE"/>
+        <Label value="jumpsuit" background="#F759AB"/>
+        <Label value="skirt" background="#FFA39E"/>
+        <Label value="pants" background="#D4380D"/>
+        <Label value="knitwear" background="#FFC069"/>
+        <Label value="tailleur" background="#AD8B00"/>
+        <Label value="swimsuit" background="#D3F261"/>
+        <Label value="accessory" background="#389E0D"/>
+    </KeyPointLabels>
+    
+    <Header value="Rectangle Labels"/>
+    <RectangleLabels name="tag3" toName="image" smart="true" showInline="true">
+        <Label value="jacket" background="#5CDBD3"/>
+        <Label value="coat" background="#096DD9"/>
+        <Label value="shirt" background="#ADC6FF"/>
+        <Label value="blouse" background="#9254DE"/>
+        <Label value="other tops" background="#F759AB"/>
+        <Label value="jersey shirt" background="#FFA39E"/>
+        <Label value="dress" background="#D4380D"/>
+        <Label value="jumpsuit" background="#FFC069"/>
+        <Label value="skirt" background="#AD8B00"/>
+        <Label value="pants" background="#D3F261"/>
+        <Label value="knitwear" background="#389E0D"/>
+        <Label value="tailleur" background="#5CDBD3"/>
+        <Label value="swimsuit" background="#096DD9"/>
+        <Label value="accessory" background="#ADC6FF"/>
+    </RectangleLabels>
+    
+    <MagicWand name="magicwand" toName="image"/>
+  </View>
