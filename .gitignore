@@ -133,3 +133,7 @@ dmypy.json
 
 # uploaded images
 label_studio_ml/examples/segment_anything_model/mydata/media/upload
+# Sensitive data
+PaPAM.csv
+# others
+.DS_Store
