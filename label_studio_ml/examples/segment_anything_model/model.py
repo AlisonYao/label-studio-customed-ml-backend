@@ -10,6 +10,7 @@ from google.cloud import storage
 from datetime import timedelta
 import base64
 import requests
+import json
 import logging
 logger = logging.getLogger(__name__)
 
@@ -38,8 +39,7 @@ class SamMLBackend(LabelStudioMLBase):
         if image_url.startswith('gs://'):
             # Generate signed URL for GCS
             bucket_name, object_name = image_url.replace('gs://', '').split('/', 1)
-            storage_client = storage.Client.from_service_account_info(self.google_app_creds_json)
-            print("FREAKING service account key works!!!!!!!!!!!!!!")
+            storage_client = storage.Client.from_service_account_info(json.loads(self.google_app_creds_json))
             bucket = storage_client.bucket(bucket_name)
             blob = bucket.blob(object_name)
             try:
