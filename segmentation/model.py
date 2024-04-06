@@ -32,11 +32,15 @@ class SegModel(LabelStudioMLBase):
         metadata_url = 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/'
         headers = {'Metadata-Flavor': 'Google'}
         metadata_request_url = metadata_url + metadata_key
-        response = requests.get(metadata_request_url, headers=headers)
-        assert response.status_code == 200
-        google_app_creds_base64 = response.text
-        google_app_creds_json = base64.b64decode(google_app_creds_base64).decode('utf-8')
-        return google_app_creds_json
+        try:
+            response = requests.get(metadata_request_url, headers=headers)
+            assert response.status_code == 200
+            google_app_creds_base64 = response.text
+            google_app_creds_json = base64.b64decode(google_app_creds_base64).decode('utf-8')
+            return google_app_creds_json
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching metadata: {e}")
+            return None
     
     def _get_image_url(self, task, value='image'):
         image_url = task['data'].get(value) or task['data'].get(DATA_UNDEFINED_NAME)
