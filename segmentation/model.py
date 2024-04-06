@@ -70,13 +70,6 @@ class SegModel(LabelStudioMLBase):
         # Health check & init
         ################################
         task = tasks[0]
-        print('###########################')
-        task_id = task['id']
-        print(f'Task ID: {task_id}')
-        print(f'task: {task}')
-        print(f'context: {context}')
-        print('###########################')
-        
         from_name, to_name, type_ = 'tag', 'image', "brushlabels"
         
         ################################################################
@@ -100,7 +93,7 @@ class SegModel(LabelStudioMLBase):
         image_width, image_height = image.size
         
         ################################################################
-        # Running segmentation model
+        # Run segmentation model
         # https://huggingface.co/mattmdjaga/segformer_b2_clothes
         ################################################################
         processor = SegformerImageProcessor.from_pretrained("mattmdjaga/segformer_b2_clothes")
@@ -140,24 +133,20 @@ class SegModel(LabelStudioMLBase):
                 #   16: "Bag", 
                 #   17: "Scarf"}
         # modified label dictionary
-        labels_dict = {1: "accessory", 
-                       3: "accessory", 
+        labels_dict = {1: "hat", 
+                       3: "other accessories", 
                        4: "upper-clothes", 
                        5: "skirt", 
                        6: "pants", 
                        7: "dress", 
-                       8: "accessory", 
+                       8: "bag-belt", 
                        9: "footwear", 
                        10: "footwear", 
-                       16: "accessory", 
-                       17: "accessory"}
+                       16: "bag-belt", 
+                       17: "scarf-gloves"}
         unique_labels = np.unique(pred_seg.numpy())
         if 10 in unique_labels:
             pred_seg[pred_seg == 10] = 9
-        # merge all accessories to 1
-        # for n in [3, 8, 9, 10, 16, 17]:
-        #     if n in unique_labels:
-        #         pred_seg[pred_seg == n] = 1
         unique_labels = np.unique(pred_seg.numpy())
         
         # divide masks
