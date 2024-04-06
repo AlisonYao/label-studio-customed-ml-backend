@@ -17,4 +17,3 @@ services:
       - "7070:7070"
     volumes:
       - "./data/server:/data"
-      - /Full/Local/Path/service_account_key.json:/secrets/service_account_key.json

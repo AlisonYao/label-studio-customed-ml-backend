@@ -3,34 +3,47 @@ from label_studio_ml.model import LabelStudioMLBase
 from label_studio_ml.utils import get_image_local_path
 from label_studio_converter import brush
 import os
-import cv2
 import numpy as np
 import random
 import string
 from label_studio_ml.utils import DATA_UNDEFINED_NAME
 from google.cloud import storage
 from datetime import timedelta
+import base64
+import requests
+import json
 import logging
 logger = logging.getLogger(__name__)
 
 from transformers import SegformerImageProcessor, AutoModelForSemanticSegmentation
 from PIL import Image
 import requests
-import matplotlib.pyplot as plt
 import torch.nn as nn
-import torch
 
 LABEL_STUDIO_ACCESS_TOKEN = os.environ.get("LABEL_STUDIO_ACCESS_TOKEN")
 LABEL_STUDIO_HOST = os.environ.get("LABEL_STUDIO_HOST")
 
 class SegModel(LabelStudioMLBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.google_app_creds_json = self._get_custom_metadata('GOOGLE_APPLICATION_CREDENTIALS_BASE64')
+        
+    def _get_custom_metadata(self, metadata_key):
+        metadata_url = 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/'
+        headers = {'Metadata-Flavor': 'Google'}
+        metadata_request_url = metadata_url + metadata_key
+        response = requests.get(metadata_request_url, headers=headers)
+        assert response.status_code == 200
+        google_app_creds_base64 = response.text
+        google_app_creds_json = base64.b64decode(google_app_creds_base64).decode('utf-8')
+        return google_app_creds_json
     
     def _get_image_url(self, task, value='image'):
         image_url = task['data'].get(value) or task['data'].get(DATA_UNDEFINED_NAME)
         if image_url.startswith('gs://'):
             # Generate signed URL for GCS
             bucket_name, object_name = image_url.replace('gs://', '').split('/', 1)
-            storage_client = storage.Client.from_service_account_json('/secrets/service_account_key.json')
+            storage_client = storage.Client.from_service_account_info(json.loads(self.google_app_creds_json))
             bucket = storage_client.bucket(bucket_name)
             blob = bucket.blob(object_name)
             try:
